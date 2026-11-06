@@ -9,6 +9,8 @@ import {
   WifiOff,
 } from 'lucide-react'
 import MediaPanel from './features/media/MediaPanel'
+import TouchpadPanel from './features/touchpad/TouchpadPanel'
+import KeyboardPanel from './features/keyboard/KeyboardPanel'
 
 type Tab = 'media' | 'touchpad' | 'keyboard'
 
@@ -120,31 +122,9 @@ function App() {
 
           {activeTab === 'media' &&  <MediaPanel />}
 
-          {activeTab === 'touchpad' && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-              <div className="flex items-center gap-2">
-                <Mouse size={20} className="text-emerald-400" />
-                <h2 className="font-semibold">Touchpad</h2>
-              </div>
+          {activeTab === 'touchpad' && <TouchpadPanel />}
 
-              <p className="mt-4 text-sm text-slate-400">
-                Your mouse control interface will be built here.
-              </p>
-            </div>
-          )}
-
-          {activeTab === 'keyboard' && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-              <div className="flex items-center gap-2">
-                <Keyboard size={20} className="text-emerald-400" />
-                <h2 className="font-semibold">Keyboard</h2>
-              </div>
-
-              <p className="mt-4 text-sm text-slate-400">
-                Your keyboard control interface will be built here.
-              </p>
-            </div>
-          )}
+          {activeTab === 'keyboard' && <KeyboardPanel />}
 
         </section>
 
