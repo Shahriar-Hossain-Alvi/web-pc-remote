@@ -8,6 +8,7 @@ import {
   Wifi,
   WifiOff,
 } from 'lucide-react'
+import MediaPanel from './features/media/MediaPanel'
 
 type Tab = 'media' | 'touchpad' | 'keyboard'
 
@@ -117,18 +118,7 @@ function App() {
         {/* Main Content */}
         <section className="mt-6">
 
-          {activeTab === 'media' && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-              <div className="flex items-center gap-2">
-                <Music2 size={20} className="text-emerald-400" />
-                <h2 className="font-semibold">Media Controls</h2>
-              </div>
-
-              <p className="mt-4 text-sm text-slate-400">
-                Your media remote interface will be built here.
-              </p>
-            </div>
-          )}
+          {activeTab === 'media' &&  <MediaPanel />}
 
           {activeTab === 'touchpad' && (
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
