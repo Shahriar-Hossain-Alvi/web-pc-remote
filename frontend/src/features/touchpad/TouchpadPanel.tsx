@@ -23,6 +23,8 @@ function TouchpadPanel() {
   const [lastAction, setLastAction] = useState('Ready')
   const [error, setError] = useState('')
   const mouseSocket = useRef<WebSocket | null>(null)
+  const continuousScrollTimer = useRef<ReturnType<typeof setInterval> | null>(null)
+  const scrollRequestInProgress = useRef(false)
 
   const lastPosition = useRef<{ x: number; y: number } | null>(null)
   const dragging = useRef(false)
@@ -45,6 +47,7 @@ function TouchpadPanel() {
     }
 
     return () => {
+      stopContinuousScroll()
       socket.close()
       mouseSocket.current = null
     }
@@ -119,6 +122,46 @@ function TouchpadPanel() {
 
   const handlePointerCancel = () => {
     handlePointerUp()
+  }
+
+  const stopContinuousScroll = () => {
+    if (continuousScrollTimer.current !== null) {
+      clearInterval(continuousScrollTimer.current)
+      continuousScrollTimer.current = null
+    }
+  }
+
+  const startContinuousScroll = (direction: 'up' | 'down') => {
+    stopContinuousScroll()
+
+    const amount = direction === 'up' ? 30 : -30
+
+    setError('')
+    setLastAction(
+      direction === 'up' ? 'Continuous scroll up' : 'Continuous scroll down',
+    )
+
+    const performScroll = async () => {
+      if (scrollRequestInProgress.current) return
+
+      scrollRequestInProgress.current = true
+
+      try {
+        await scrollMouse(amount)
+      } catch (err) {
+        console.error(err)
+        setError('Scrolling failed. Check your PC connection.')
+        stopContinuousScroll()
+      } finally {
+        scrollRequestInProgress.current = false
+      }
+    }
+
+    void performScroll()
+
+    continuousScrollTimer.current = setInterval(() => {
+      void performScroll()
+    }, 120)
   }
 
   return (
@@ -233,7 +276,6 @@ function TouchpadPanel() {
         </p>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-
           <button
             onClick={() =>
               void sendAction('Scroll up', () => scrollMouse(5))
@@ -253,7 +295,40 @@ function TouchpadPanel() {
             <ArrowDown size={18} />
             Scroll Down
           </button>
+        </div>
 
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          <button
+            onPointerDown={(event) => {
+              event.preventDefault()
+              event.currentTarget.setPointerCapture(event.pointerId)
+              startContinuousScroll('up')
+            }}
+            onPointerUp={stopContinuousScroll}
+            onPointerCancel={stopContinuousScroll}
+            onLostPointerCapture={stopContinuousScroll}
+            onContextMenu={(event) => event.preventDefault()}
+            className="flex touch-none items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-4 text-sm text-emerald-400 transition active:bg-emerald-500/20 select-none"
+          >
+            <ArrowUp size={18} />
+            Hold to Scroll Up
+          </button>
+
+          <button
+            onPointerDown={(event) => {
+              event.preventDefault()
+              event.currentTarget.setPointerCapture(event.pointerId)
+              startContinuousScroll('down')
+            }}
+            onPointerUp={stopContinuousScroll}
+            onPointerCancel={stopContinuousScroll}
+            onLostPointerCapture={stopContinuousScroll}
+            onContextMenu={(event) => event.preventDefault()}
+            className="flex touch-none items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-4 text-sm text-emerald-400 transition active:bg-emerald-500/20 select-none"
+          >
+            <ArrowDown size={18} />
+            Hold to Scroll Down
+          </button>
         </div>
 
       </div>
