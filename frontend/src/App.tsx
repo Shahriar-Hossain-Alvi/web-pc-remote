@@ -103,8 +103,11 @@ function App() {
 
             <div className="flex-1">
               <h2 className="font-semibold">My Windows PC</h2>
-              <p className="mt-1 text-xs text-slate-400">
-                Waiting for connection...
+              <p
+                className={`mt-1 text-xs ${isConnected ? 'text-emerald-400' : 'text-red-400'
+                  }`}
+              >
+                {isConnected ? 'Connected' : 'Disconnected'}
               </p>
             </div>
           </div>

@@ -7,10 +7,14 @@ router = APIRouter(prefix="/input", tags=["Input"])
 
 
 # Request models
-
 class MouseMoveRequest(BaseModel):
     x: int = Field(ge=0)
     y: int = Field(ge=0)
+
+
+class MouseMoveRelativeRequest(BaseModel):
+    dx: int = Field(ge=-2000, le=2000)
+    dy: int = Field(ge=-2000, le=2000)
 
 
 class MouseClickRequest(BaseModel):
@@ -89,6 +93,33 @@ async def type_text(request: TypeTextRequest):
 async def press_key(request: PressKeyRequest):
     try:
         InputService.press_key(request.key)
+        return {"status": "success"}
+    except Exception as error:
+        raise HTTPException(status_code=400, detail=str(error))
+
+
+@router.post("/mouse/move-relative")
+async def move_mouse_relative(request: MouseMoveRelativeRequest):
+    try:
+        InputService.move_mouse_relative(request.dx, request.dy)
+        return {"status": "success"}
+    except Exception as error:
+        raise HTTPException(status_code=400, detail=str(error))
+
+
+@router.post("/mouse/down")
+async def mouse_down():
+    try:
+        InputService.mouse_down()
+        return {"status": "success"}
+    except Exception as error:
+        raise HTTPException(status_code=400, detail=str(error))
+
+
+@router.post("/mouse/up")
+async def mouse_up():
+    try:
+        InputService.mouse_up()
         return {"status": "success"}
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error))

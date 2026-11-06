@@ -1,5 +1,7 @@
 import pyautogui
 
+pyautogui.PAUSE = 0
+
 
 class InputService:
 
@@ -30,6 +32,18 @@ class InputService:
     @staticmethod
     def hotkey(*keys: str):
         pyautogui.hotkey(*keys)
+
+    @staticmethod
+    def move_mouse_relative(dx: int, dy: int):
+        pyautogui.moveRel(dx, dy)
+
+    @staticmethod
+    def mouse_down(button: str = "left"):
+        pyautogui.mouseDown(button=button)
+
+    @staticmethod
+    def mouse_up(button: str = "left"):
+        pyautogui.mouseUp(button=button)
 
     @staticmethod
     def get_screen_size():

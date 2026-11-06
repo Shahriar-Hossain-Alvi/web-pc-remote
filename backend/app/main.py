@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.routers.input import router as input_router
+from app.routers.mouse_ws import router as mouse_ws_router
 
 app = FastAPI(
     title="PC Remote API",
@@ -7,6 +8,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.include_router(mouse_ws_router)
 app.include_router(input_router)
 
 
