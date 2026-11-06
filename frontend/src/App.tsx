@@ -1,5 +1,5 @@
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Keyboard,
   Monitor,
@@ -11,15 +11,32 @@ import {
 import MediaPanel from './features/media/MediaPanel'
 import TouchpadPanel from './features/touchpad/TouchpadPanel'
 import KeyboardPanel from './features/keyboard/KeyboardPanel'
+import { checkBackendHealth } from './lib/api'
 
 type Tab = 'media' | 'touchpad' | 'keyboard'
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('media')
+  const [isConnected, setIsConnected] = useState(false);
 
-  // Temporary connection status.
-  // Real backend connection will be implemented later.
-  const isConnected = false
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const result = await checkBackendHealth();
+        setIsConnected(result.status === 'healthy');
+      } catch (error) {
+        console.error('Backend connection failed:', error);
+        setIsConnected(false);
+      }
+    };
+
+    checkConnection();
+
+    const intervalId = setInterval(checkConnection, 5000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
 
   const tabs = [
     {
@@ -62,11 +79,10 @@ function App() {
 
           {/* Connection Status */}
           <div
-            className={`flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium ${
-              isConnected
-                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                : 'border-slate-700 bg-slate-800 text-slate-400'
-            }`}
+            className={`flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium ${isConnected
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+              : 'border-slate-700 bg-slate-800 text-slate-400'
+              }`}
           >
             {isConnected ? (
               <Wifi size={14} />
@@ -104,11 +120,10 @@ function App() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col items-center justify-center gap-1.5 rounded-lg py-3 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-emerald-500 text-slate-950'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                }`}
+                className={`flex flex-col items-center justify-center gap-1.5 rounded-lg py-3 text-sm font-medium transition-colors ${isActive
+                  ? 'bg-emerald-500 text-slate-950'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  }`}
               >
                 <Icon size={20} />
                 {tab.label}
@@ -120,7 +135,7 @@ function App() {
         {/* Main Content */}
         <section className="mt-6">
 
-          {activeTab === 'media' &&  <MediaPanel />}
+          {activeTab === 'media' && <MediaPanel />}
 
           {activeTab === 'touchpad' && <TouchpadPanel />}
 
