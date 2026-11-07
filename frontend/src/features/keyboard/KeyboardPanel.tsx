@@ -11,7 +11,7 @@ import {
   Command,
   Eraser,
 } from 'lucide-react'
-import { typeText } from './keyboard.api'
+import { pressKey, typeText } from './keyboard.api'
 
 function KeyboardPanel() {
   const [text, setText] = useState('')
@@ -36,32 +36,60 @@ function KeyboardPanel() {
     { label: 'Ctrl + A', keys: ['Ctrl', 'A'] },
   ]
 
-  const handleKey = (key: string) => {
-    setLastAction(`${key} · Demo`)
+  const handleKey = async (key: string) => {
+    const keyMap: Record<string, string> = {
+      Esc: 'esc',
+      Tab: 'tab',
+      Ctrl: 'ctrl',
+      Alt: 'alt',
+      Shift: 'shift',
+
+      ArrowUp: 'up',
+      ArrowDown: 'down',
+      ArrowLeft: 'left',
+      ArrowRight: 'right',
+
+      Enter: 'enter',
+      Backspace: 'backspace',
+      Delete: 'delete',
+    }
+
+    const pyAutoGuiKey = keyMap[key] ?? key.toLowerCase()
+
+    try {
+      setError('')
+
+      await pressKey(pyAutoGuiKey)
+
+      setLastAction(`${key} pressed`)
+    } catch (err) {
+      console.error(err)
+      setError(`Failed to press ${key}. Check your PC connection.`)
+    }
   }
 
   const handleShortcut = (label: string) => {
-    setLastAction(`${label} · Demo`)
+    setLastAction(`${label}`)
   }
 
   const handleSendText = async () => {
-  if (!text.trim()) return
+    if (!text.trim()) return
 
-  try {
-    setIsSending(true)
-    setError('')
+    try {
+      setIsSending(true)
+      setError('')
 
-    await typeText(text)
+      await typeText(text)
 
-    setLastAction('Text sent successfully')
-    setText('')
-  } catch (err) {
-    console.error(err)
-    setError('Failed to send text. Check your PC connection.')
-  } finally {
-    setIsSending(false)
+      setLastAction('Text sent successfully')
+      setText('')
+    } catch (err) {
+      console.error(err)
+      setError('Failed to send text. Check your PC connection.')
+    } finally {
+      setIsSending(false)
+    }
   }
-}
 
   return (
     <div className="space-y-5">
@@ -103,18 +131,18 @@ function KeyboardPanel() {
         </div>
 
         <div className="mt-3 space-y-2">
-  <button
-    onClick={() => void handleSendText()}
-    disabled={!text || isSending}
-    className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
-  >
-    {isSending ? 'Sending...' : 'Send Text to PC'}
-  </button>
+          <button
+            onClick={() => void handleSendText()}
+            disabled={!text || isSending}
+            className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {isSending ? 'Sending...' : 'Send Text to PC'}
+          </button>
 
-  {error && (
-    <p className="text-xs text-red-400">{error}</p>
-  )}
-</div>
+          {error && (
+            <p className="text-xs text-red-400">{error}</p>
+          )}
+        </div>
 
       </div>
 
@@ -249,6 +277,12 @@ function KeyboardPanel() {
             {lastAction}
           </span>
         </p>
+
+        {error && (
+          <p className="mt-2 text-xs text-red-400">
+            {error}
+          </p>
+        )}
       </div>
 
     </div>
