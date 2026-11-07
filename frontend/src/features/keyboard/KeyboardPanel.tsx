@@ -11,10 +11,13 @@ import {
   Command,
   Eraser,
 } from 'lucide-react'
+import { typeText } from './keyboard.api'
 
 function KeyboardPanel() {
   const [text, setText] = useState('')
   const [lastAction, setLastAction] = useState('Ready')
+  const [error, setError] = useState('')
+  const [isSending, setIsSending] = useState(false)
 
   const specialKeys = [
     'Esc',
@@ -40,6 +43,25 @@ function KeyboardPanel() {
   const handleShortcut = (label: string) => {
     setLastAction(`${label} · Demo`)
   }
+
+  const handleSendText = async () => {
+  if (!text.trim()) return
+
+  try {
+    setIsSending(true)
+    setError('')
+
+    await typeText(text)
+
+    setLastAction('Text sent successfully')
+    setText('')
+  } catch (err) {
+    console.error(err)
+    setError('Failed to send text. Check your PC connection.')
+  } finally {
+    setIsSending(false)
+  }
+}
 
   return (
     <div className="space-y-5">
@@ -80,9 +102,19 @@ function KeyboardPanel() {
 
         </div>
 
-        <p className="mt-3 rounded-lg bg-slate-800/70 p-3 text-xs text-slate-400">
-          Text will be sent to your PC when keyboard integration is implemented.
-        </p>
+        <div className="mt-3 space-y-2">
+  <button
+    onClick={() => void handleSendText()}
+    disabled={!text || isSending}
+    className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
+  >
+    {isSending ? 'Sending...' : 'Send Text to PC'}
+  </button>
+
+  {error && (
+    <p className="text-xs text-red-400">{error}</p>
+  )}
+</div>
 
       </div>
 

@@ -1,9 +1,26 @@
 import pyautogui
+import ctypes
 
 pyautogui.PAUSE = 0
 
 
 class InputService:
+    @staticmethod
+    def move_mouse_to_center():
+        user32 = ctypes.windll.user32
+
+        width = user32.GetSystemMetrics(0)
+        height = user32.GetSystemMetrics(1)
+
+        x = width // 2
+        y = height // 2
+
+        success = user32.SetCursorPos(x, y)
+
+        if not success:
+            raise OSError("Failed to move mouse to screen center.")
+
+        return {"x": x, "y": y}
 
     @staticmethod
     def move_mouse(x: int, y: int):

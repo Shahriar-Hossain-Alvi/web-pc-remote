@@ -132,3 +132,13 @@ async def press_hotkey(request: HotkeyRequest):
         return {"status": "success"}
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error))
+
+
+@router.post("/mouse/center")
+async def center_mouse():
+    position = InputService.move_mouse_to_center()
+
+    return {
+        "status": "success",
+        "position": position,
+    }

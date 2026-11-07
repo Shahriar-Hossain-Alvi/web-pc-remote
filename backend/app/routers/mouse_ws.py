@@ -1,3 +1,5 @@
+import pyautogui
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.services.input_service import InputService
@@ -9,9 +11,14 @@ router = APIRouter(tags=["Mouse WebSocket"])
 async def mouse_websocket(websocket: WebSocket):
     await websocket.accept()
 
+    failsafe_logged = False
+
     try:
         while True:
             data = await websocket.receive_json()
+
+            if not isinstance(data, dict):
+                continue
 
             dx = data.get("dx")
             dy = data.get("dy")
@@ -27,7 +34,19 @@ async def mouse_websocket(websocket: WebSocket):
             if abs(dx) > 2000 or abs(dy) > 2000:
                 continue
 
-            InputService.move_mouse_relative(dx, dy)
+            try:
+                InputService.move_mouse_relative(dx, dy)
+                failsafe_logged = False
+
+            except pyautogui.FailSafeException:
+                if not failsafe_logged:
+                    print(
+                        "Mouse fail-safe triggered. "
+                        "Move the physical mouse away from the screen corner."
+                    )
+                    failsafe_logged = True
+
+                continue
 
     except WebSocketDisconnect:
         print("Mouse WebSocket disconnected")

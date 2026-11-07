@@ -77,3 +77,9 @@ export function connectMouseSocket() {
       `${protocol}//${window.location.host}/ws/mouse`,
    )
 }
+
+export function centerMouse() {
+   return apiRequest<ApiResponse>('/input/mouse/center', {
+      method: 'POST',
+   })
+}

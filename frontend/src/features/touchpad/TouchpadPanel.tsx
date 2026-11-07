@@ -7,6 +7,7 @@ import {
   ArrowDown,
   Move,
   Hand,
+  Crosshair,
 } from 'lucide-react'
 
 import {
@@ -16,6 +17,7 @@ import {
   mouseDown,
   mouseUp,
   connectMouseSocket,
+  centerMouse,
 } from './touchpad.api'
 
 function TouchpadPanel() {
@@ -261,6 +263,15 @@ function TouchpadPanel() {
           Double Click
         </button>
 
+        <button
+          onClick={() =>
+            void sendAction('Mouse moved to center', centerMouse)
+          }
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3 text-sm font-medium text-emerald-400 transition hover:bg-emerald-500/20 active:scale-95"
+        >
+          <Crosshair size={17} />
+          Center Mouse
+        </button>
       </div>
 
       {/* Scroll Controls */}
