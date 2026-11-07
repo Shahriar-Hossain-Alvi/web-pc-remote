@@ -11,7 +11,7 @@ import {
   Command,
   Eraser,
 } from 'lucide-react'
-import { pressKey, typeText } from './keyboard.api'
+import { pressHotkey, pressKey, typeText } from './keyboard.api'
 
 function KeyboardPanel() {
   const [text, setText] = useState('')
@@ -68,8 +68,31 @@ function KeyboardPanel() {
     }
   }
 
-  const handleShortcut = (label: string) => {
-    setLastAction(`${label}`)
+  const handleShortcut = async (
+    label: string,
+    keys: string[],
+  ) => {
+    const keyMap: Record<string, string> = {
+      Win: 'win',
+      Ctrl: 'ctrl',
+      Alt: 'alt',
+      Shift: 'shift',
+    }
+
+    const mappedKeys = keys.map(
+      (key) => keyMap[key] ?? key.toLowerCase(),
+    )
+
+    try {
+      setError('')
+
+      await pressHotkey(mappedKeys)
+
+      setLastAction(`${label} executed`)
+    } catch (err) {
+      console.error(err)
+      setError(`Failed to execute ${label}.`)
+    }
   }
 
   const handleSendText = async () => {
@@ -258,7 +281,9 @@ function KeyboardPanel() {
           {shortcuts.map((shortcut) => (
             <button
               key={shortcut.label}
-              onClick={() => handleShortcut(shortcut.label)}
+              onClick={() =>
+                void handleShortcut(shortcut.label, shortcut.keys)
+              }
               className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-4 text-sm font-medium text-slate-300 transition hover:border-emerald-500/40 hover:bg-slate-700 active:scale-95"
             >
               {shortcut.label}

@@ -17,3 +17,10 @@ export function pressKey(key: string) {
       body: JSON.stringify({ key }),
    })
 }
+
+export function pressHotkey(keys: string[]) {
+   return apiRequest<ApiResponse>('/input/keyboard/hotkey', {
+      method: 'POST',
+      body: JSON.stringify({ keys }),
+   })
+}
