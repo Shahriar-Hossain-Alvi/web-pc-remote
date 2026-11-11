@@ -31,26 +31,71 @@ function TouchpadPanel() {
   const lastPosition = useRef<{ x: number; y: number } | null>(null)
   const dragging = useRef(false)
 
+  // useEffect(() => {
+  //   const socket = connectMouseSocket()
+
+  //   mouseSocket.current = socket
+
+  //   socket.onopen = () => {
+  //     console.log('Mouse WebSocket connected')
+  //   }
+
+  //   socket.onclose = () => {
+  //     console.log('Mouse WebSocket disconnected')
+  //   }
+
+  //   socket.onerror = (error) => {
+  //     console.error('Mouse WebSocket error:', error)
+  //   }
+
+  //   return () => {
+  //     stopContinuousScroll()
+  //     socket.close()
+  //     mouseSocket.current = null
+  //   }
+  // }, [])
+
   useEffect(() => {
-    const socket = connectMouseSocket()
+    let socket: WebSocket | null = null
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+    let isUnmounted = false
 
-    mouseSocket.current = socket
+    const connect = () => {
+      if (isUnmounted) return
 
-    socket.onopen = () => {
-      console.log('Mouse WebSocket connected')
+      socket = connectMouseSocket()
+      mouseSocket.current = socket
+
+      socket.onopen = () => {
+        console.log('Mouse WebSocket connected')
+      }
+
+      socket.onclose = () => {
+        console.log('Mouse WebSocket disconnected. Reconnecting...')
+
+        if (!isUnmounted) {
+          reconnectTimer = setTimeout(connect, 1000)
+        }
+      }
+
+      socket.onerror = (error) => {
+        console.error('Mouse WebSocket error:', error)
+        socket?.close()
+      }
     }
 
-    socket.onclose = () => {
-      console.log('Mouse WebSocket disconnected')
-    }
-
-    socket.onerror = (error) => {
-      console.error('Mouse WebSocket error:', error)
-    }
+    connect()
 
     return () => {
+      isUnmounted = true
+
+      if (reconnectTimer !== null) {
+        clearTimeout(reconnectTimer)
+      }
+
       stopContinuousScroll()
-      socket.close()
+
+      socket?.close()
       mouseSocket.current = null
     }
   }, [])

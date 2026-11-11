@@ -142,3 +142,39 @@ async def center_mouse():
         "status": "success",
         "position": position,
     }
+
+
+@router.post("/media/play-pause")
+async def media_play_pause():
+    InputService.media_play_pause()
+    return {"status": "success", "action": "play_pause"}
+
+
+@router.post("/media/previous")
+async def media_previous():
+    InputService.media_previous()
+    return {"status": "success", "action": "previous"}
+
+
+@router.post("/media/next")
+async def media_next():
+    InputService.media_next()
+    return {"status": "success", "action": "next"}
+
+
+@router.post("/media/volume-up")
+async def media_volume_up():
+    InputService.media_volume_up()
+    return {"status": "success", "action": "volume_up"}
+
+
+@router.post("/media/volume-down")
+async def media_volume_down():
+    InputService.media_volume_down()
+    return {"status": "success", "action": "volume_down"}
+
+
+@router.post("/media/mute")
+async def media_mute():
+    InputService.media_mute()
+    return {"status": "success", "action": "mute"}

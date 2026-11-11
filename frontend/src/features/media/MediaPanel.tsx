@@ -8,47 +8,44 @@ import {
   Pause,
   SkipBack,
   SkipForward,
-  RotateCcw,
-  RotateCw,
   Music2,
+  Loader2,
 } from 'lucide-react'
+
+import {
+  playPauseMedia,
+  previousMedia,
+  nextMedia,
+  volumeUp,
+  volumeDown,
+  toggleMute,
+} from './media.api'
 
 function MediaPanel() {
   const [isPlaying, setIsPlaying] = useState(false)
-  const [progress, setProgress] = useState(35)
-  const [volume, setVolume] = useState(70)
-  const [previousVolume, setPreviousVolume] = useState(70)
+  const [isMuted, setIsMuted] = useState(false)
+  const [busyAction, setBusyAction] = useState<string | null>(null)
+  const [error, setError] = useState('')
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
+  const sendCommand = async (
+    action: string,
+    command: () => Promise<unknown>,
+    onSuccess?: () => void,
+  ) => {
+    if (busyAction) return
 
-    return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`
-  }
+    setBusyAction(action)
+    setError('')
 
-  const currentTime = Math.floor((progress / 100) * 240)
-
-  const handleVolumeChange = (value: number) => {
-    if (value > 0) {
-      setPreviousVolume(value)
+    try {
+      await command()
+      onSuccess?.()
+    } catch (err) {
+      console.error(err)
+      setError('Command failed. Check your PC connection.')
+    } finally {
+      setBusyAction(null)
     }
-
-    setVolume(value)
-  }
-
-  const toggleMute = () => {
-    if (volume > 0) {
-      setPreviousVolume(volume)
-      setVolume(0)
-    } else {
-      setVolume(previousVolume || 70)
-    }
-  }
-
-  const changeProgress = (amount: number) => {
-    setProgress((current) =>
-      Math.max(0, Math.min(100, current + amount / 240 * 100))
-    )
   }
 
   return (
@@ -76,57 +73,40 @@ function MediaPanel() {
             Control your PC media playback
           </p>
 
-          <span className="mt-3 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
-            Demo mode · Not connected
+          <span className="mt-3 rounded-full bg-emerald-500/10 px-3 py-1 text-xs text-emerald-400">
+            Windows media controls
           </span>
 
         </div>
 
-        {/* Playback Progress */}
-        <div className="mt-8">
-
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={progress}
-            onChange={(e) => setProgress(Number(e.target.value))}
-            className="h-1.5 w-full cursor-pointer accent-emerald-500"
-            aria-label="Playback progress"
-          />
-
-          <div className="mt-2 flex justify-between text-xs text-slate-400">
-            <span>{formatTime(currentTime)}</span>
-            <span>4:00</span>
-          </div>
-
-        </div>
-
         {/* Playback Buttons */}
-        <div className="mt-6 flex items-center justify-center gap-5">
+        <div className="mt-8 flex items-center justify-center gap-7">
 
           <button
-            onClick={() => changeProgress(-10)}
-            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
-            title="Back 10 seconds"
-          >
-            <RotateCcw size={21} />
-          </button>
-
-          <button
-            onClick={() => setProgress(0)}
-            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+            onClick={() => void sendCommand(
+              'previous',
+              previousMedia,
+            )}
+            disabled={busyAction !== null}
+            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white disabled:opacity-50"
             title="Previous"
           >
-            <SkipBack size={22} />
+            <SkipBack size={24} />
           </button>
 
           <button
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-slate-950 transition hover:bg-emerald-400 active:scale-95"
+            onClick={() => void sendCommand(
+              'play-pause',
+              playPauseMedia,
+              () => setIsPlaying((current) => !current),
+            )}
+            disabled={busyAction !== null}
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-slate-950 transition hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
             title={isPlaying ? 'Pause' : 'Play'}
           >
-            {isPlaying ? (
+            {busyAction === 'play-pause' ? (
+              <Loader2 size={24} className="animate-spin" />
+            ) : isPlaying ? (
               <Pause size={26} fill="currentColor" />
             ) : (
               <Play size={26} fill="currentColor" />
@@ -134,19 +114,15 @@ function MediaPanel() {
           </button>
 
           <button
-            onClick={() => setProgress(100)}
-            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+            onClick={() => void sendCommand(
+              'next',
+              nextMedia,
+            )}
+            disabled={busyAction !== null}
+            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white disabled:opacity-50"
             title="Next"
           >
-            <SkipForward size={22} />
-          </button>
-
-          <button
-            onClick={() => changeProgress(10)}
-            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
-            title="Forward 10 seconds"
-          >
-            <RotateCw size={21} />
+            <SkipForward size={24} />
           </button>
 
         </div>
@@ -159,58 +135,61 @@ function MediaPanel() {
         <div className="flex items-center justify-between">
           <h3 className="font-semibold">Volume</h3>
 
-          <span className="text-sm font-medium text-emerald-400">
-            {volume}%
+          <span className="text-xs text-slate-500">
+            PC volume
           </span>
         </div>
 
-        <div className="mt-5 flex items-center gap-3">
+        <div className="mt-5 flex items-center justify-between gap-3">
 
           <button
-            onClick={toggleMute}
-            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
-            title={volume === 0 ? 'Unmute' : 'Mute'}
+            onClick={() => void sendCommand(
+              'mute',
+              toggleMute,
+              () => setIsMuted((current) => !current),
+            )}
+            disabled={busyAction !== null}
+            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white disabled:opacity-50"
+            title={isMuted ? 'Unmute' : 'Mute'}
           >
-            {volume === 0 ? (
-              <VolumeX size={21} />
-            ) : volume < 50 ? (
-              <Volume1 size={21} />
+            {isMuted ? (
+              <VolumeX size={22} />
             ) : (
-              <Volume2 size={21} />
+              <Volume2 size={22} />
             )}
           </button>
 
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={volume}
-            onChange={(e) => handleVolumeChange(Number(e.target.value))}
-            className="h-1.5 flex-1 cursor-pointer accent-emerald-500"
-            aria-label="Volume"
-          />
-
-        </div>
-
-        <div className="mt-4 flex items-center justify-between">
-
           <button
-            onClick={() => handleVolumeChange(Math.max(0, volume - 5))}
-            className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
+            onClick={() => void sendCommand('volume-down', volumeDown)}
+            disabled={busyAction !== null}
+            className="flex-1 rounded-lg border border-slate-700 px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 disabled:opacity-50"
           >
-            Volume −
+            <span className="flex items-center justify-center gap-2">
+              <Volume1 size={17} />
+              Volume −
+            </span>
           </button>
 
           <button
-            onClick={() => handleVolumeChange(Math.min(100, volume + 5))}
-            className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
+            onClick={() => void sendCommand('volume-up', volumeUp)}
+            disabled={busyAction !== null}
+            className="flex-1 rounded-lg border border-slate-700 px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 disabled:opacity-50"
           >
-            Volume +
+            <span className="flex items-center justify-center gap-2">
+              <Volume2 size={17} />
+              Volume +
+            </span>
           </button>
 
         </div>
 
       </div>
+
+      {error && (
+        <p className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-center text-sm text-red-400">
+          {error}
+        </p>
+      )}
 
     </div>
   )
