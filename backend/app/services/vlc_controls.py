@@ -64,11 +64,11 @@ class VLCControlService:
 
     @staticmethod
     async def volume_up():
-        await VLCControlService._command("volume", "+25")
+        await VLCControlService._command("volume", "+5")
 
     @staticmethod
     async def volume_down():
-        await VLCControlService._command("volume", "-25")
+        await VLCControlService._command("volume", "-5")
 
     @staticmethod
     async def mute():

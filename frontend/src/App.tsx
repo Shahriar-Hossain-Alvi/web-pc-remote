@@ -7,16 +7,18 @@ import {
   Music2,
   Wifi,
   WifiOff,
+  TrafficCone
 } from 'lucide-react'
 import MediaPanel from './features/media/MediaPanel'
 import TouchpadPanel from './features/touchpad/TouchpadPanel'
 import KeyboardPanel from './features/keyboard/KeyboardPanel'
 import { checkBackendHealth } from './lib/api'
+import VLCPanel from './features/vlc/VLCPanel'
 
-type Tab = 'media' | 'touchpad' | 'keyboard'
+type Tab = 'media' | 'vlc' | 'touchpad' | 'keyboard'
 
 function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('media')
+  const [activeTab, setActiveTab] = useState<Tab>('vlc')
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
@@ -40,9 +42,9 @@ function App() {
 
   const tabs = [
     {
-      id: 'media' as Tab,
-      label: 'Media',
-      icon: Music2,
+      id: 'vlc' as Tab,
+      label: 'VLC',
+      icon: TrafficCone,
     },
     {
       id: 'touchpad' as Tab,
@@ -50,10 +52,15 @@ function App() {
       icon: Mouse,
     },
     {
+      id: 'media' as Tab,
+      label: 'Media',
+      icon: Music2,
+    },
+    {
       id: 'keyboard' as Tab,
       label: 'Keyboard',
       icon: Keyboard,
-    },
+    }
   ]
 
   return (
@@ -114,7 +121,7 @@ function App() {
         </section>
 
         {/* Navigation */}
-        <nav className="mt-8 grid grid-cols-3 gap-2 rounded-xl bg-slate-900 p-1.5">
+        <nav className="mt-8 grid grid-cols-4 gap-2 rounded-xl bg-slate-900 p-1.5">
           {tabs.map((tab) => {
             const Icon = tab.icon
             const isActive = activeTab === tab.id
@@ -137,12 +144,14 @@ function App() {
 
         {/* Main Content */}
         <section className="mt-6">
-
-          {activeTab === 'media' && <MediaPanel />}
+          {activeTab === 'vlc' && <VLCPanel />}
 
           {activeTab === 'touchpad' && <TouchpadPanel />}
 
+          {activeTab === 'media' && <MediaPanel />}
+
           {activeTab === 'keyboard' && <KeyboardPanel />}
+
 
         </section>
 
