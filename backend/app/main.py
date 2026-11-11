@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.routers.input import router as input_router
 from app.routers.mouse_ws import router as mouse_ws_router
 from app.routers.media import router as media_router
+from app.routers.vlc import router as vlc_router
 
 app = FastAPI(
     title="PC Remote API",
@@ -12,6 +13,7 @@ app = FastAPI(
 app.include_router(mouse_ws_router)
 app.include_router(input_router)
 app.include_router(media_router)
+app.include_router(vlc_router)
 
 
 @app.get("/")
