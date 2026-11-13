@@ -2,9 +2,6 @@ import httpx
 
 from app.core.config import VLC_HOST, VLC_PASSWORD
 
-print("VLC password configured:", bool(VLC_PASSWORD))
-print("VLC password length:", len(VLC_PASSWORD))
-
 
 class VLCService:
 
