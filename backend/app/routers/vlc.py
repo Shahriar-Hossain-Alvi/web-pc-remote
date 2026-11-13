@@ -1,4 +1,5 @@
 
+from pydantic import BaseModel, Field
 from fastapi import APIRouter
 
 from app.services.vlc_controls import VLCControlService
@@ -8,6 +9,10 @@ router = APIRouter(
     prefix="/vlc",
     tags=["VLC Controls"],
 )
+
+
+class VLCSeekRequest(BaseModel):
+    seconds: int = Field(ge=0)
 
 
 @router.get("/status")
@@ -49,3 +54,14 @@ async def vlc_volume_down():
 async def vlc_mute():
     await VLCControlService.mute()
     return {"status": "success", "action": "mute"}
+
+
+@router.post("/seek")
+async def vlc_seek(request: VLCSeekRequest):
+    await VLCControlService.seek(request.seconds)
+
+    return {
+        "status": "success",
+        "action": "seek",
+        "seconds": request.seconds,
+    }

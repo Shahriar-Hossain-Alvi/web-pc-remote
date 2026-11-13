@@ -22,12 +22,15 @@ import {
    vlcVolumeDown,
    vlcMute,
    type VLCStatus,
+   vlcSeek,
 } from './vlc.api'
 
 function VLCPanel() {
    const [status, setStatus] = useState<VLCStatus | null>(null)
    const [busyAction, setBusyAction] = useState<string | null>(null)
-   const [error, setError] = useState('')
+   const [error, setError] = useState('');
+   const [isSeeking, setIsSeeking] = useState(false)
+   const [seekPosition, setSeekPosition] = useState(0)
 
    const fetchStatus = useCallback(async () => {
       try {
@@ -78,6 +81,20 @@ function VLCPanel() {
       const remainingSeconds = Math.floor(safeSeconds % 60)
 
       return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`
+   }
+
+   const handleSeek = async (seconds: number) => {
+      if (!status || status.length <= 0) return
+
+      setIsSeeking(false)
+
+      try {
+         await vlcSeek(Math.round(seconds))
+         await fetchStatus()
+      } catch (err) {
+         console.error('VLC seek failed:', err)
+         setError('Unable to seek in VLC.')
+      }
    }
 
    const metadata =
@@ -149,17 +166,46 @@ function VLCPanel() {
                </span>
             </div>
 
+
             {/* Progress */}
             <div className="mt-7">
-               <div className="h-1.5 overflow-hidden rounded-full bg-slate-700">
-                  <div
-                     className="h-full rounded-full bg-orange-400 transition-all duration-500"
-                     style={{ width: `${progressPercent}%` }}
-                  />
-               </div>
+               <input
+                  type="range"
+                  min={0}
+                  max={status?.length ?? 0}
+                  step={1}
+                  value={
+                     isSeeking
+                        ? seekPosition
+                        : status?.time ?? 0
+                  }
+                  disabled={!status || status.length <= 0}
+                  onChange={(event) => {
+                     setSeekPosition(Number(event.target.value))
+                     setIsSeeking(true)
+                  }}
+                  onPointerUp={(event) => {
+                     const target = event.currentTarget
+                     void handleSeek(Number(target.value))
+                  }}
+                  onKeyUp={(event) => {
+                     if (
+                        ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)
+                     ) {
+                        void handleSeek(Number(event.currentTarget.value))
+                     }
+                  }}
+                  className="h-1.5 w-full cursor-pointer accent-orange-400 disabled:cursor-not-allowed"
+               />
 
                <div className="mt-2 flex justify-between text-xs tabular-nums text-slate-400">
-                  <span>{formatTime(status?.time ?? 0)}</span>
+                  <span>
+                     {formatTime(
+                        isSeeking
+                           ? seekPosition
+                           : status?.time ?? 0,
+                     )}
+                  </span>
                   <span>{formatTime(status?.length ?? 0)}</span>
                </div>
             </div>

@@ -86,3 +86,7 @@ class VLCControlService:
                 "volume",
                 str(restore_volume),
             )
+
+    @staticmethod
+    async def seek(seconds: int):
+        await VLCControlService._command("seek", str(seconds))

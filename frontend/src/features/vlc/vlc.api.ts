@@ -65,3 +65,10 @@ export function vlcMute() {
     method: 'POST',
   })
 }
+
+export function vlcSeek(seconds: number) {
+  return apiRequest<VLCActionResponse>('/vlc/seek', {
+    method: 'POST',
+    body: JSON.stringify({ seconds }),
+  })
+}
