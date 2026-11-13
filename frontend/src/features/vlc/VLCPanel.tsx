@@ -115,10 +115,10 @@ function VLCPanel() {
       Math.max(0, Math.round((status?.volume ?? 0) / 2.56)),
    )
 
-   const progressPercent =
-      status && status.length > 0
-         ? Math.min(100, (status.time / status.length) * 100)
-         : 0
+   // const progressPercent =
+   //    status && status.length > 0
+   //       ? Math.min(100, (status.time / status.length) * 100)
+   //       : 0
 
    return (
       <div className="space-y-5">
