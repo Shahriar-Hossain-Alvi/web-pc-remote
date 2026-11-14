@@ -10,6 +10,8 @@ from qrcode.image.pil import PilImage
 import sys
 from pathlib import Path
 import os
+import traceback
+from datetime import datetime
 
 
 def get_project_paths():
@@ -32,6 +34,7 @@ class PCRemoteLauncher:
         self.qr_image = None
         self.create_ui()
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.log_file = Path.home() / "PCRemote" / "pc_remote.log"
 
     def on_close(self):
         self.start_button.config(state="disabled")
@@ -68,20 +71,17 @@ class PCRemoteLauncher:
 
         self.start_button.config(state="disabled")
         self.stop_button.config(state="disabled")
-
         base_dir = get_project_paths()
 
+        os.chdir(base_dir)
+        sys.path.insert(0, str(base_dir))
         config = uvicorn.Config(
             "app.main:app",
             host="0.0.0.0",
             port=8000,
             log_level="warning",
+            log_config=None,
         )
-
-        os.chdir(base_dir)
-        sys.path.insert(0, str(base_dir))
-
-        self.server = uvicorn.Server(config)
 
         self.server = uvicorn.Server(config)
 
@@ -90,8 +90,18 @@ class PCRemoteLauncher:
             daemon=True,
         )
         self.server_thread.start()
-
         self.root.after(300, self.check_server_status)
+
+    def log_error(self, message):
+        try:
+            self.log_file.parent.mkdir(parents=True, exist_ok=True)
+
+            with self.log_file.open("a", encoding="utf-8") as file:
+                file.write(f"\n[{datetime.now()}]\n")
+                file.write(message + "\n")
+                file.flush()
+        except Exception as error:
+            print(f"Could not write log: {error}")
 
     def check_server_status(self):
         if self.server and self.server.started:
