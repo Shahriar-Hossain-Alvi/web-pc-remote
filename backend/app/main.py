@@ -1,17 +1,19 @@
-
 from pathlib import Path
-
+import sys
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-
 from app.routers.input import router as input_router
 from app.routers.mouse_ws import router as mouse_ws_router
 from app.routers.media import router as media_router
 from app.routers.vlc import router as vlc_router
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
+if getattr(sys, "frozen", False):
+    BASE_DIR = Path(getattr(sys, "_MEIPASS"))
+else:
+    BASE_DIR = Path(__file__).resolve().parents[2]
+
 FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
 app = FastAPI(

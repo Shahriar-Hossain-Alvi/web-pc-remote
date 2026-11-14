@@ -17,3 +17,8 @@ pip freeze > requirements.txt
 ```bash
 pip install -r requirements.txt
 ```
+
+# start windows launcher
+```bash
+python launcher.py
+```

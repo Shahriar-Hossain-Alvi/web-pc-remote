@@ -7,6 +7,16 @@ import qrcode
 from PIL import ImageTk
 from typing import cast
 from qrcode.image.pil import PilImage
+import sys
+from pathlib import Path
+import os
+
+
+def get_project_paths():
+    if getattr(sys, "frozen", False):
+        return Path(getattr(sys, "_MEIPASS"))
+
+    return Path(__file__).resolve().parent
 
 
 class PCRemoteLauncher:
@@ -21,6 +31,31 @@ class PCRemoteLauncher:
         self.server_thread = None
         self.qr_image = None
         self.create_ui()
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def on_close(self):
+        self.start_button.config(state="disabled")
+        self.stop_button.config(state="disabled")
+
+        if self.server:
+            self.status_label.config(
+                text="● Shutting down...",
+                foreground="#d97706",
+            )
+
+            self.server.should_exit = True
+            self.wait_for_server_shutdown()
+        else:
+            self.root.destroy()
+
+    def wait_for_server_shutdown(self):
+        if self.server_thread and self.server_thread.is_alive():
+            self.root.after(100, self.wait_for_server_shutdown)
+            return
+
+        self.server = None
+        self.server_thread = None
+        self.root.destroy()
 
     def start_server(self):
         if self.server_thread and self.server_thread.is_alive():
@@ -34,12 +69,19 @@ class PCRemoteLauncher:
         self.start_button.config(state="disabled")
         self.stop_button.config(state="disabled")
 
+        base_dir = get_project_paths()
+
         config = uvicorn.Config(
             "app.main:app",
             host="0.0.0.0",
             port=8000,
             log_level="warning",
         )
+
+        os.chdir(base_dir)
+        sys.path.insert(0, str(base_dir))
+
+        self.server = uvicorn.Server(config)
 
         self.server = uvicorn.Server(config)
 
