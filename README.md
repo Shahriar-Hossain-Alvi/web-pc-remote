@@ -136,7 +136,7 @@ To disconnect, click **Stop Server** or close the launcher.
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Shahriar-Hossain-Alvi/web-pc-remote.git
 cd pc-remote
 ```
 
