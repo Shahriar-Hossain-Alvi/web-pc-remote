@@ -121,6 +121,31 @@ Download the latest Windows release:
 
 Alternatively, visit the [GitHub Releases page](https://github.com/Shahriar-Hossain-Alvi/web-pc-remote/releases) to see all available versions.
 
+## Screenshots
+
+## Start Desktop Launcher 
+![Start Desktop Launcher](assets/screenshots/start_desktop_launcher.png)
+
+![Start Server](assets/screenshots/start_server.png)
+
+![Server Runnig with QR Code](assets/screenshots/running_server.png)
+
+## VLC Controls
+![VLC Controls](assets/screenshots/vlc_controls.png)
+
+## Touchpad Controls
+![Touchpad Controls](assets/screenshots/touchpad.png)
+
+## Windows General Media Controls
+![Windows General Media Controls](assets/screenshots/media_controls.png)
+
+## Keyboard Control, Special Keys & Shortcuts
+![Keyboard Control](assets/screenshots/keyboard_controls.png)
+
+## Stop Server
+![Stop Server](assets/screenshots/stop_server.png)
+
+
 ## Getting Started
 
 ### Using the packaged application
