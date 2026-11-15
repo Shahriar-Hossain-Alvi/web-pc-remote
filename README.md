@@ -131,6 +131,48 @@ To disconnect, click **Stop Server** or close the launcher.
 
 > Keep the launcher running while using PC Remote. Stopping it shuts down the server and disconnects the remote interface.
 
+### Enabling VLC Controls
+The dedicated VLC controls use VLC's built-in HTTP interface. General media controls do not require this configuration.
+
+> 1. Enable VLC's Web Interface
+1. Open VLC Media Player.
+2. Go to Tools → Preferences or press Ctrl + P.
+3. Under Show settings at the bottom-left, select All.
+4. Navigate to Interface → Main interfaces.
+5. Enable Web.
+6. Expand Interface → Main interfaces → Lua.
+7. Under Lua HTTP, locate the Password field.
+8. Set a password of your choice.
+9. Click Save and restart VLC.
+
+VLC's HTTP interface normally uses:
+```bash
+http://127.0.0.1:8080
+```
+
+> 2. Configure PC Remote
+PC Remote reads VLC configuration from a .env file.
+
+Create a file named .env with:
+```env
+VLC_HOST=http://127.0.0.1:8080
+VLC_PASSWORD=your_vlc_lua_http_password
+```
+Replace the password with the one you configured in VLC.
+
+File location:
+- Running from source: backend/.env
+- Running packaged application: Place .env in the same folder as PCRemote.exe.
+Keep this file private. Never commit your VLC password to GitHub.
+
+> 3. Verify VLC Controls
+1. Make sure VLC is running.
+2. Start PC Remote.
+3. Open the VLC controls.
+4. Try a command.
+If the connection fails, verify that the Web interface is enabled, VLC has been restarted, and the .env credentials are correct.
+
+
 ## Development Setup
 
 Clone the repository:
