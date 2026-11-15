@@ -150,7 +150,7 @@ Alternatively, visit the [GitHub Releases page](https://github.com/Shahriar-Hoss
 
 ### Using the packaged application
 
-1.  or obtain the PC Remote release.
+1. Download the latest PC Remote release from the [Releases page](https://github.com/Shahriar-Hossain-Alvi/web-pc-remote/releases).
 2. Extract the application folder if it comes as an archive.
 3. Run `PCRemote.exe`.
 4. If Windows displays a security confirmation, verify the application and allow it to launch.
