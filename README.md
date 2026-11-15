@@ -113,11 +113,19 @@ In production, FastAPI also serves the compiled React frontend, so the applicati
 - Node.js and npm
 - Git
 
+## Download
+
+Download the latest Windows release:
+
+[Download PC Remote for Windows](https://github.com/Shahriar-Hossain-Alvi/web-pc-remote/releases/latest/download/PCRemote-Windows.zip)
+
+Alternatively, visit the [GitHub Releases page](https://github.com/Shahriar-Hossain-Alvi/web-pc-remote/releases) to see all available versions.
+
 ## Getting Started
 
 ### Using the packaged application
 
-1. Download or obtain the PC Remote release.
+1.  or obtain the PC Remote release.
 2. Extract the application folder if it comes as an archive.
 3. Run `PCRemote.exe`.
 4. If Windows displays a security confirmation, verify the application and allow it to launch.
