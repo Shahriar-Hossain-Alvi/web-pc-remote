@@ -212,7 +212,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/Shahriar-Hossain-Alvi/web-pc-remote.git
-cd pc-remote
+cd web-pc-remote
 ```
 
 ### 1. Backend Setup
