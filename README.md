@@ -367,4 +367,5 @@ The goal is to keep the application lightweight, straightforward, and easy to us
 
 ## License
 
-No license has been specified yet. All rights reserved unless a license is added to this repository.
+This project is licensed under the MIT License.
+See the [LICENSE](LICENSE) file for details.
